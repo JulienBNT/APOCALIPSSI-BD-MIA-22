@@ -13,7 +13,9 @@ export default function RootLayout({
 }) {
   return (
     <html lang="fr" className="dark">
-      <body className="font-system antialiased">{children}</body>
+      <body className="font-system antialiased min-h-screen w-full flex flex-col">
+        {children}
+      </body>
     </html>
   );
 }

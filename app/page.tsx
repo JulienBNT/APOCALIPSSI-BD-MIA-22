@@ -126,9 +126,8 @@ export default function Home() {
     <div className="min-h-screen bg-gradient-to-br from-zinc-950 via-slate-950 to-zinc-950">
       {/* Ambient background */}
       <div className="fixed inset-0 bg-gradient-to-br from-blue-500/5 via-transparent to-blue-600/5 pointer-events-none"></div>
-      
       {/* Header */}
-      <div className="max-w-5xl mx-auto px-6 py-4">
+      <div className="max-w-5xl mx-auto px-4 sm:px-6 py-4">
         <div className="flex items-center gap-4">
           <div className="p-3 rounded-2xl bg-gradient-to-br from-blue-500 to-blue-600 shadow-lg glow-blue-subtle">
             <Brain className="w-7 h-7 text-white" />
@@ -139,28 +138,26 @@ export default function Home() {
           </div>
         </div>
       </div>
-
       {/* Main Content */}
-      <main className="max-w-5xl mx-auto px-6 py-16">
+      <main className="max-w-5xl mx-auto px-2 sm:px-4 md:px-6 py-8 sm:py-12 md:py-16">
         {appState === 'upload' && (
           <div className="space-y-16">
             {/* Hero Section */}
             <div className="text-center space-y-8">
               <div className="space-y-4">
-                <h2 className="text-5xl font-light text-white text-display gradient-text">
+                <h2 className="text-3xl sm:text-5xl font-light text-white text-display gradient-text">
                   Analysez vos documents PDF
                 </h2>
-                <p className="text-xl text-zinc-400 text-body max-w-2xl mx-auto">
+                <p className="text-base sm:text-xl text-zinc-400 text-body max-w-2xl mx-auto">
                   Obtenez un résumé intelligent et des insights clés en quelques secondes grâce à notre IA avancée
                 </p>
               </div>
             </div>
-
             {/* Upload Section */}
-            <Card className="border-zinc-800/50 bg-zinc-900/30 backdrop-blur-sm card-hover">
-              <CardContent className="p-12">
+            <Card className="border-zinc-800/50 bg-zinc-900/30 backdrop-blur-sm card-hover w-full">
+              <CardContent className="p-4 sm:p-8 md:p-12 w-full">
                 <div
-                  className={`relative border-2 border-dashed rounded-2xl p-20 text-center transition-all duration-500 ${
+                  className={`relative border-2 border-dashed rounded-2xl p-6 sm:p-12 md:p-20 text-center transition-all duration-500 ${
                     isDragOver
                       ? 'border-blue-400 bg-blue-500/10 glow-blue scale-[1.02]'
                       : 'border-zinc-700/50 hover:border-blue-500/50 hover:bg-blue-500/5'
@@ -170,27 +167,24 @@ export default function Home() {
                   onDrop={handleDrop}
                 >
                   <div className="space-y-8">
-                    <div className="mx-auto w-20 h-20 rounded-full bg-gradient-to-br from-blue-500/20 to-blue-600/20 flex items-center justify-center border border-blue-500/20">
-                      <Upload className="w-10 h-10 text-blue-400" />
+                    <div className="mx-auto w-16 h-16 sm:w-20 sm:h-20 rounded-full bg-gradient-to-br from-blue-500/20 to-blue-600/20 flex items-center justify-center border border-blue-500/20">
+                      <Upload className="w-8 h-8 sm:w-10 sm:h-10 text-blue-400" />
                     </div>
-                    
                     <div className="space-y-3">
-                      <h3 className="text-2xl font-medium text-white text-display">
+                      <h3 className="text-lg sm:text-2xl font-medium text-white text-display">
                         Glissez votre PDF ici
                       </h3>
-                      <p className="text-zinc-400 text-lg text-body">
+                      <p className="text-zinc-400 text-base sm:text-lg text-body">
                         ou cliquez pour sélectionner un fichier
                       </p>
                     </div>
-
                     <Button
                       onClick={() => document.getElementById('file-input')?.click()}
-                      className="apple-button text-white px-10 py-4 text-lg font-medium rounded-xl"
+                      className="apple-button text-white px-6 sm:px-10 py-3 sm:py-4 text-base sm:text-lg font-medium rounded-xl"
                     >
                       <FileText className="w-5 h-5 mr-3" />
                       Sélectionner un fichier
                     </Button>
-                    
                     <input
                       id="file-input"
                       type="file"
@@ -198,17 +192,15 @@ export default function Home() {
                       className="hidden"
                       onChange={(e) => e.target.files?.[0] && handleFileUpload(e.target.files[0])}
                     />
-
-                    <p className="text-sm text-zinc-500">
+                    <p className="text-xs sm:text-sm text-zinc-500">
                       Formats acceptés: PDF • Taille max: 10MB
                     </p>
                   </div>
                 </div>
               </CardContent>
             </Card>
-
             {/* Features */}
-            <div className="grid md:grid-cols-3 gap-8">
+            <div className="grid gap-6 sm:gap-8 grid-cols-1 md:grid-cols-3">
               {[
                 {
                   icon: Zap,
@@ -229,7 +221,7 @@ export default function Home() {
                   color: "from-emerald-500 to-blue-500"
                 }
               ].map((feature, index) => (
-                <Card key={index} className="border-zinc-800/50 bg-zinc-900/20 backdrop-blur-sm card-hover group">
+                <Card key={index} className="border-zinc-800/50 bg-zinc-900/20 backdrop-blur-sm card-hover group w-full">
                   <CardContent className="p-8 text-center">
                     <div className={`mx-auto w-16 h-16 rounded-2xl bg-gradient-to-br ${feature.color} flex items-center justify-center mb-6 group-hover:scale-110 transition-transform duration-300`}>
                       <feature.icon className="w-8 h-8 text-white" />
@@ -289,19 +281,19 @@ export default function Home() {
         {appState === 'completed' && summary && (
           <div className="space-y-8">
             {/* Header */}
-            <Card className="border-zinc-800/50 bg-zinc-900/30 backdrop-blur-sm">
-              <CardContent className="p-8">
-                <div className="flex items-center justify-between">
+            <Card className="border-zinc-800/50 bg-zinc-900/30 backdrop-blur-sm w-full">
+              <CardContent className="p-4 sm:p-6 md:p-8 w-full">
+                <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 md:gap-0">
                   <div className="flex items-center gap-4">
                     <div className="p-3 rounded-xl bg-gradient-to-br from-emerald-500/20 to-green-500/20 border border-emerald-500/30">
                       <CheckCircle className="w-6 h-6 text-emerald-400" />
                     </div>
                     <div>
-                      <h3 className="text-xl font-semibold text-white text-display">Analyse terminée</h3>
-                      <p className="text-zinc-400 text-body">{uploadedFile?.name}</p>
+                      <h3 className="text-lg sm:text-xl font-semibold text-white text-display">Analyse terminée</h3>
+                      <p className="text-zinc-400 text-body text-sm sm:text-base">{uploadedFile?.name}</p>
                     </div>
                   </div>
-                  <div className="flex items-center gap-4">
+                  <div className="flex flex-col sm:flex-row items-start sm:items-center gap-2 sm:gap-4">
                     <Badge className="bg-gradient-to-r from-blue-500/20 to-blue-600/20 text-blue-300 border-blue-500/30 px-4 py-2">
                       <Star className="w-4 h-4 mr-2" />
                       {summary.confidence}% de confiance
@@ -309,7 +301,7 @@ export default function Home() {
                     <Button
                       onClick={resetApp}
                       variant="outline"
-                      className="border-zinc-700/50 text-zinc-300 hover:bg-zinc-800/50 hover:border-blue-500/50"
+                      className="border-zinc-700/50 text-zinc-300 hover:bg-zinc-800/50 hover:border-blue-500/50 w-full sm:w-auto"
                     >
                       Nouveau document
                     </Button>
@@ -317,70 +309,65 @@ export default function Home() {
                 </div>
               </CardContent>
             </Card>
-
             {/* Summary Content */}
             <div className="space-y-8">
               {/* Title */}
-              <Card className="border-zinc-800/50 bg-zinc-900/30 backdrop-blur-sm card-hover">
-                <CardContent className="p-10">
-                  <h2 className="text-3xl font-light text-white mb-4 text-display">{summary.title}</h2>
+              <Card className="border-zinc-800/50 bg-zinc-900/30 backdrop-blur-sm card-hover w-full">
+                <CardContent className="p-4 sm:p-6 md:p-10 w-full">
+                  <h2 className="text-2xl sm:text-3xl font-light text-white mb-4 text-display">{summary.title}</h2>
                   <div className="flex items-center gap-3 text-zinc-400">
                     <Clock className="w-5 h-5 text-blue-400" />
-                    <span className="text-body">Analysé maintenant</span>
+                    <span className="text-body text-sm sm:text-base">Analysé maintenant</span>
                   </div>
                 </CardContent>
               </Card>
-
               {/* Main Points */}
-              <Card className="border-zinc-800/50 bg-zinc-900/30 backdrop-blur-sm card-hover">
-                <CardContent className="p-10">
-                  <div className="flex items-center gap-3 mb-8">
+              <Card className="border-zinc-800/50 bg-zinc-900/30 backdrop-blur-sm card-hover w-full">
+                <CardContent className="p-4 sm:p-6 md:p-10 w-full">
+                  <div className="flex items-center gap-3 mb-6 sm:mb-8">
                     <ArrowRight className="w-6 h-6 text-blue-400" />
-                    <h3 className="text-2xl font-semibold text-white text-display">Points principaux</h3>
+                    <h3 className="text-xl sm:text-2xl font-semibold text-white text-display">Points principaux</h3>
                   </div>
-                  <ul className="space-y-6">
+                  <ul className="space-y-4 sm:space-y-6">
                     {summary.mainPoints.map((point, index) => (
-                      <li key={index} className="flex items-start gap-5">
-                        <div className="w-2 h-2 rounded-full bg-gradient-to-r from-blue-400 to-blue-500 mt-3 flex-shrink-0"></div>
-                        <p className="text-zinc-200 text-lg text-body leading-relaxed">{point}</p>
+                      <li key={index} className="flex items-start gap-3 sm:gap-5">
+                        <div className="w-2 h-2 rounded-full bg-gradient-to-r from-blue-400 to-blue-500 mt-2 sm:mt-3 flex-shrink-0"></div>
+                        <p className="text-zinc-200 text-base sm:text-lg text-body leading-relaxed">{point}</p>
                       </li>
                     ))}
                   </ul>
                 </CardContent>
               </Card>
-
               {/* Key Insights */}
-              <Card className="border-zinc-800/50 bg-zinc-900/30 backdrop-blur-sm card-hover">
-                <CardContent className="p-10">
-                  <div className="flex items-center gap-3 mb-8">
+              <Card className="border-zinc-800/50 bg-zinc-900/30 backdrop-blur-sm card-hover w-full">
+                <CardContent className="p-4 sm:p-6 md:p-10 w-full">
+                  <div className="flex items-center gap-3 mb-6 sm:mb-8">
                     <Sparkles className="w-6 h-6 text-blue-400" />
-                    <h3 className="text-2xl font-semibold text-white text-display">Insights clés</h3>
+                    <h3 className="text-xl sm:text-2xl font-semibold text-white text-display">Insights clés</h3>
                   </div>
-                  <div className="space-y-6">
+                  <div className="space-y-4 sm:space-y-6">
                     {summary.keyInsights.map((insight, index) => (
-                      <div key={index} className="p-6 rounded-xl bg-gradient-to-r from-blue-500/10 to-blue-600/10 border border-blue-500/20 backdrop-blur-sm">
-                        <p className="text-blue-100 text-lg text-body leading-relaxed">{insight}</p>
+                      <div key={index} className="p-4 sm:p-6 rounded-xl bg-gradient-to-r from-blue-500/10 to-blue-600/10 border border-blue-500/20 backdrop-blur-sm">
+                        <p className="text-blue-100 text-base sm:text-lg text-body leading-relaxed">{insight}</p>
                       </div>
                     ))}
                   </div>
                 </CardContent>
               </Card>
-
               {/* Conclusion */}
-              <Card className="border-zinc-800/50 bg-zinc-900/30 backdrop-blur-sm card-hover">
-                <CardContent className="p-10">
-                  <div className="flex items-center gap-3 mb-8">
+              <Card className="border-zinc-800/50 bg-zinc-900/30 backdrop-blur-sm card-hover w-full">
+                <CardContent className="p-4 sm:p-6 md:p-10 w-full">
+                  <div className="flex items-center gap-3 mb-6 sm:mb-8">
                     <FileText className="w-6 h-6 text-blue-400" />
-                    <h3 className="text-2xl font-semibold text-white text-display">Conclusion</h3>
+                    <h3 className="text-xl sm:text-2xl font-semibold text-white text-display">Conclusion</h3>
                   </div>
-                  <p className="text-zinc-200 text-lg text-body leading-relaxed">{summary.conclusion}</p>
+                  <p className="text-zinc-200 text-base sm:text-lg text-body leading-relaxed">{summary.conclusion}</p>
                 </CardContent>
               </Card>
-
               {/* Actions */}
-              <div className="flex gap-6">
+              <div className="flex flex-col sm:flex-row gap-4 sm:gap-6">
                 <Button
-                  className="apple-button text-white flex-1 py-6 text-lg font-medium rounded-xl"
+                  className="apple-button text-white flex-1 py-4 sm:py-6 text-base sm:text-lg font-medium rounded-xl"
                 >
                   <Download className="w-5 h-5 mr-3" />
                   Télécharger le résumé
@@ -388,7 +375,7 @@ export default function Home() {
                 <Button
                   onClick={resetApp}
                   variant="outline"
-                  className="border-zinc-700/50 text-zinc-300 hover:bg-zinc-800/50 hover:border-blue-500/50 py-6 px-10 rounded-xl"
+                  className="border-zinc-700/50 text-zinc-300 hover:bg-zinc-800/50 hover:border-blue-500/50 py-4 sm:py-6 px-6 sm:px-10 rounded-xl flex-1"
                 >
                   Analyser un autre document
                 </Button>
