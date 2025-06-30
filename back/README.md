@@ -7,7 +7,7 @@ API REST en Flask permettant d'uploader un fichier PDF, d'en extraire le texte e
 ## 📁 Structure du projet
 
 ```
-backend/
+back/
 ├── app.py                      # Point d'entrée Flask
 ├── controllers/
 │   └── pdf_controller.py       # Logique d'extraction et de résumé
@@ -52,7 +52,7 @@ pip install -r requirements.txt
 
 ### 🔹 4. Ajouter un fichier .env
 
-Crée un fichier `.env` à la racine de `backend/` :
+Crée un fichier `.env` à la racine de `back/` :
 
 ```env
 HUGGINGFACE_API_TOKEN=hf_votre_token
@@ -84,7 +84,7 @@ L'application démarre sur :
 ### 🧪 Exemple avec curl :
 
 ```bash
-curl -X POST -F "file=@test.pdf" http://127.0.0.1:5000/pdf/upload
+curl -X POST -F "file=@test.pdf" http://127.0.0.1:5000/api/upload
 ```
 
 **Réponse :**
