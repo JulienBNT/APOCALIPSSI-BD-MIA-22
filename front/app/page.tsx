@@ -28,11 +28,11 @@ interface PDFFile {
 
 interface Summary {
   title: string;
-  mainPoints: string[];
-  keyInsights: string[];
-  conclusion: string;
+  fullSummary: string;
   confidence: number;
+  raw: string;
 }
+
 
 type AppState = 'upload' | 'processing' | 'completed';
 
@@ -43,14 +43,47 @@ export default function Home() {
   const [summary, setSummary] = useState<Summary | null>(null);
   const [isDragOver, setIsDragOver] = useState(false);
 
-  const handleFileUpload = (file: File) => {
+  const handleFileUpload = async (file: File) => {
     if (file.type === 'application/pdf') {
       setUploadedFile({
         name: file.name,
         size: file.size,
         type: file.type
       });
-      startProcessing();
+      setAppState('processing');
+      setProgress(0);
+      // Préparation de l'envoi du fichier au back
+      const formData = new FormData();
+      formData.append('file', file);
+      try {
+        // Simule la progression
+        let progressValue = 0;
+        const progressInterval = setInterval(() => {
+          progressValue += Math.random() * 15;
+          setProgress(Math.min(progressValue, 95));
+        }, 200);
+        const response = await fetch('http://localhost:5001/api/upload', {
+          method: 'POST',
+          body: formData
+        });
+        clearInterval(progressInterval);
+        setProgress(100);
+        if (!response.ok) throw new Error('Erreur lors de la génération du résumé');
+        const data = await response.json();
+        setSummary({
+          title: 'Résumé automatique',
+          fullSummary: typeof data.summary === 'string' ? data.summary : data.summary.summary,
+          confidence: 100,
+          raw: JSON.stringify(data.raw_output ?? '')
+        });
+
+        setAppState('completed');
+      } catch (error) {
+        setAppState('upload');
+        setUploadedFile(null);
+        setProgress(0);
+        alert('Erreur lors de l\'analyse du document. Veuillez réessayer.');
+      }
     }
   };
 
@@ -65,19 +98,13 @@ export default function Home() {
           setTimeout(() => {
             setSummary({
               title: "Analyse de Document Technique",
-              mainPoints: [
-                "Introduction aux concepts fondamentaux de l'intelligence artificielle",
-                "Méthodologies d'apprentissage automatique et réseaux de neurones",
-                "Applications pratiques dans l'industrie moderne",
-                "Défis éthiques et considérations futures"
-              ],
-              keyInsights: [
-                "L'IA transforme radicalement les processus industriels",
-                "L'importance de l'éthique dans le développement technologique",
-                "Les réseaux de neurones offrent des solutions innovantes"
-              ],
-              conclusion: "Ce document présente une vue d'ensemble complète de l'état actuel de l'IA et de ses perspectives d'avenir, soulignant l'importance d'une approche équilibrée entre innovation et responsabilité.",
-              confidence: 94
+              fullSummary: `Introduction aux concepts fondamentaux de l'intelligence artificielle. Méthodologies d'apprentissage automatique et réseaux de neurones. Applications pratiques dans l'industrie moderne. Défis éthiques et considérations futures.
+
+            L'IA transforme radicalement les processus industriels. L'importance de l'éthique dans le développement technologique. Les réseaux de neurones offrent des solutions innovantes.
+
+            Ce document présente une vue d'ensemble complète de l'état actuel de l'IA et de ses perspectives d'avenir, soulignant l'importance d'une approche équilibrée entre innovation et responsabilité.`,
+              confidence: 94,
+              raw: "Raw output data for debugging purposes"
             });
             setAppState('completed');
           }, 500);
@@ -325,45 +352,15 @@ export default function Home() {
               <Card className="border-zinc-800/50 bg-zinc-900/30 backdrop-blur-sm card-hover w-full">
                 <CardContent className="p-4 sm:p-6 md:p-10 w-full">
                   <div className="flex items-center gap-3 mb-6 sm:mb-8">
-                    <ArrowRight className="w-6 h-6 text-blue-400" />
-                    <h3 className="text-xl sm:text-2xl font-semibold text-white text-display">Points principaux</h3>
-                  </div>
-                  <ul className="space-y-4 sm:space-y-6">
-                    {summary.mainPoints.map((point, index) => (
-                      <li key={index} className="flex items-start gap-3 sm:gap-5">
-                        <div className="w-2 h-2 rounded-full bg-gradient-to-r from-blue-400 to-blue-500 mt-2 sm:mt-3 flex-shrink-0"></div>
-                        <p className="text-zinc-200 text-base sm:text-lg text-body leading-relaxed">{point}</p>
-                      </li>
-                    ))}
-                  </ul>
-                </CardContent>
-              </Card>
-              {/* Key Insights */}
-              <Card className="border-zinc-800/50 bg-zinc-900/30 backdrop-blur-sm card-hover w-full">
-                <CardContent className="p-4 sm:p-6 md:p-10 w-full">
-                  <div className="flex items-center gap-3 mb-6 sm:mb-8">
-                    <Sparkles className="w-6 h-6 text-blue-400" />
-                    <h3 className="text-xl sm:text-2xl font-semibold text-white text-display">Insights clés</h3>
-                  </div>
-                  <div className="space-y-4 sm:space-y-6">
-                    {summary.keyInsights.map((insight, index) => (
-                      <div key={index} className="p-4 sm:p-6 rounded-xl bg-gradient-to-r from-blue-500/10 to-blue-600/10 border border-blue-500/20 backdrop-blur-sm">
-                        <p className="text-blue-100 text-base sm:text-lg text-body leading-relaxed">{insight}</p>
-                      </div>
-                    ))}
-                  </div>
-                </CardContent>
-              </Card>
-              {/* Conclusion */}
-              <Card className="border-zinc-800/50 bg-zinc-900/30 backdrop-blur-sm card-hover w-full">
-                <CardContent className="p-4 sm:p-6 md:p-10 w-full">
-                  <div className="flex items-center gap-3 mb-6 sm:mb-8">
                     <FileText className="w-6 h-6 text-blue-400" />
-                    <h3 className="text-xl sm:text-2xl font-semibold text-white text-display">Conclusion</h3>
+                    <h3 className="text-xl sm:text-2xl font-semibold text-white text-display">Résumé complet</h3>
                   </div>
-                  <p className="text-zinc-200 text-base sm:text-lg text-body leading-relaxed">{summary.conclusion}</p>
+                  <p className="text-zinc-200 text-base sm:text-lg text-body leading-relaxed whitespace-pre-line">
+                    {summary.fullSummary}
+                  </p>
                 </CardContent>
               </Card>
+
               {/* Actions */}
               <div className="flex flex-col sm:flex-row gap-4 sm:gap-6">
                 <Button
