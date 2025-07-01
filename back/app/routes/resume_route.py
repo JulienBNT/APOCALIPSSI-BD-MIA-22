@@ -1,7 +1,9 @@
 from flask import Blueprint, request, jsonify
 from app.controllers.resume_controller import upload_and_summarize_pdf
+import traceback
 
 pdf_bp = Blueprint('pdf', __name__)
+
 
 @pdf_bp.route('/upload', methods=['POST'])
 def upload_pdf():
@@ -15,6 +17,8 @@ def upload_pdf():
             summary = upload_and_summarize_pdf(file)
             return jsonify({'summary': summary})
         except Exception as e:
+            print("❌ ERREUR INTERNE SERVEUR :")
+            traceback.print_exc()
             return jsonify({'error': str(e)}), 500
     else:
         return jsonify({'error': 'File is not a PDF'}), 400

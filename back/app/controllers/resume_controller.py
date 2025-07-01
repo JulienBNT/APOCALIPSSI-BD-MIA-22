@@ -1,37 +1,43 @@
 import requests
+from PyPDF2 import PdfReader
 import os
-from PyPDF2 import PdfReader  # pip install PyPDF2
 
-HUGGINGFACE_API_URL = "https://api-inference.huggingface.co/models/csebuetnlp/mT5_multilingual_XLSum"
-HUGGINGFACE_API_TOKEN = os.getenv("HUGGINGFACE_API_TOKEN")
+OLLAMA_API_URL = "http://localhost:11434/api/chat"
 
-headers = {
-    "Authorization": f"Bearer {HUGGINGFACE_API_TOKEN}"
-}
-
-
-def extract_text_from_pdf(file_storage):
-    reader = PdfReader(file_storage)
+def extract_text_from_pdf(file):
+    reader = PdfReader(file)
     text = ""
     for page in reader.pages:
-        text += page.extract_text() + "\n"
+        text += page.extract_text() or ""
     return text
 
 
-def upload_and_summarize_pdf(file_storage):
-    full_text = extract_text_from_pdf(file_storage)
+def upload_and_summarize_pdf(file):
+    text = extract_text_from_pdf(file)
 
-    # Troncature : XLSum tolère un peu plus, mais on limite pour éviter erreurs
-    short_text = full_text[:4000]
+    prompt = f"""
+Tu es une intelligence artificielle experte en résumé. Lis ce document et produis un résumé clair et fluide, comme si tu l'expliquais à quelqu'un à l'oral. Sois synthétique mais complet.
 
-    payload = {
-        "inputs": f"summarize: {short_text}"
-    }
+Voici le contenu à résumer :
 
-    response = requests.post(HUGGINGFACE_API_URL, headers=headers, json=payload)
+{text}
+"""
+
+    response = requests.post(OLLAMA_API_URL, json={
+        "model": "mistral",
+        "messages": [
+            {"role": "user", "content": prompt}
+        ],
+        "stream": False
+    })
 
     if response.status_code != 200:
-        raise Exception(f"HuggingFace API error: {response.text}")
+        raise Exception(f"Ollama error: {response.status_code} - {response.text}")
 
     result = response.json()
-    return result[0]['summary_text']
+    summary = result["message"]["content"]
+
+    return {
+        "summary": summary,
+        "raw_output": summary
+    }
