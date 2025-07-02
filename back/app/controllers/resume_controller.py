@@ -1,6 +1,10 @@
 import requests
 from PyPDF2 import PdfReader
 import os
+from flask_jwt_extended import get_jwt_identity
+from app.models.user_model import User
+from app.models.summary_model import Summary
+from app.models import db
 
 OLLAMA_API_URL = "http://localhost:11434/api/chat"
 MAX_TEXT_LENGTH = 4000
@@ -13,13 +17,12 @@ def extract_text_from_pdf(file):
     return text
 
 
-def upload_and_summarize_pdf(file):
+def upload_and_summarize_pdf(file, user_id=None, save_to_db=True):
     text = extract_text_from_pdf(file)
 
     if not text.strip():
         raise ValueError("Le PDF semble vide ou le texte est illisible.")
 
-    # Tronquer le texte
     text = text[:MAX_TEXT_LENGTH]
 
     prompt = f"""
@@ -47,10 +50,22 @@ Voici le contenu à résumer :
         raise Exception(f"Ollama error: {response.status_code} - {response.text}")
 
     result = response.json()
-    summary = result["message"]["content"]
+    summary_text = result["message"]["content"]
+
+    if save_to_db:
+        if not user_id:
+            raise ValueError("Impossible d'enregistrer sans utilisateur connecté.")
+        user = User.query.get(user_id)
+        if not user:
+            raise ValueError("Utilisateur introuvable.")
+
+        summary = Summary(filename=file.filename, summary_text=summary_text, user=user)
+        db.session.add(summary)
+        db.session.commit()
 
     return {
-        "summary": summary,
+        "summary": summary_text,
         "model": "mistral",
-        "input_length": len(text)
+        "input_length": len(text),
+        "filename": file.filename
     }
