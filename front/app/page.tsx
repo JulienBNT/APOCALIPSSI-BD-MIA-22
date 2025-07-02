@@ -155,14 +155,24 @@ export default function Home() {
       <div className="fixed inset-0 bg-gradient-to-br from-blue-500/5 via-transparent to-blue-600/5 pointer-events-none"></div>
       {/* Header */}
       <div className="max-w-5xl mx-auto px-4 sm:px-6 py-4">
-        <div className="flex items-center gap-4">
-          <div className="p-3 rounded-2xl bg-gradient-to-br from-blue-500 to-blue-600 shadow-lg glow-blue-subtle">
-            <Brain className="w-7 h-7 text-white" />
+        <div className="flex items-center justify-between">
+          {/* Logo et titre */}
+          <div className="flex items-center gap-4">
+            <div className="p-3 rounded-2xl bg-gradient-to-br from-blue-500 to-blue-600 shadow-lg glow-blue-subtle">
+              <Brain className="w-7 h-7 text-white" />
+            </div>
+            <div>
+              <h1 className="text-2xl font-semibold text-white text-display">ComplySummarize IA</h1>
+              <p className="text-blue-300/80 font-medium">Résumé automatique par IA</p>
+            </div>
           </div>
-          <div>
-            <h1 className="text-2xl font-semibold text-white text-display">ComplySummarize IA</h1>
-            <p className="text-blue-300/80 font-medium">Résumé automatique par IA</p>
-          </div>
+
+          {/* Bouton Login */}
+          <a href="/auth">
+            <Button className="apple-button text-white px-5 py-2 text-sm font-medium rounded-xl">
+              Connexion
+            </Button>
+          </a>
         </div>
       </div>
       {/* Main Content */}
