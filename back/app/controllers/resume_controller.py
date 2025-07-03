@@ -5,6 +5,7 @@ from flask_jwt_extended import get_jwt_identity
 from app.models.user_model import User
 from app.models.summary_model import Summary
 from app.models import db
+from app.utils import anonymize_text
 
 OLLAMA_API_URL = "http://localhost:11434/api/chat"
 MAX_TEXT_LENGTH = 4000
@@ -25,12 +26,15 @@ def upload_and_summarize_pdf(file, user_id=None, save_to_db=True):
 
     text = text[:MAX_TEXT_LENGTH]
 
+    # 🔒 Anonymisation PII
+    anonymized_text = anonymize_text(text)
+
     prompt = f"""
 Tu es une intelligence artificielle experte en résumé. Lis ce document et produis un résumé clair et fluide, comme si tu l'expliquais à quelqu'un à l'oral. Sois synthétique mais complet.
 
 Voici le contenu à résumer :
 
-{text}
+{anonymized_text}
 """
 
     try:
@@ -59,13 +63,18 @@ Voici le contenu à résumer :
         if not user:
             raise ValueError("Utilisateur introuvable.")
 
-        summary = Summary(filename=file.filename, summary_text=summary_text, user=user)
+        summary = Summary(
+            filename=file.filename,
+            summary_text=summary_text,
+            original_text=text,
+            anonymized_text=anonymized_text,
+            user=user
+        )
         db.session.add(summary)
         db.session.commit()
 
     return {
         "summary": summary_text,
-        "model": "mistral",
-        "input_length": len(text),
-        "filename": file.filename
+        "input_length": len(anonymized_text),
+        "filename": file.filename,
     }

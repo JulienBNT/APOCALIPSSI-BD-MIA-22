@@ -20,7 +20,6 @@ def generate_resume():
         return jsonify({"error": "Nom de fichier vide"}), 400
 
     try:
-        # user_id = None car pas loggué
         result = upload_and_summarize_pdf(file, user_id=None, save_to_db=False)
         return jsonify(result), 200
     except Exception as e:
