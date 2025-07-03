@@ -1,5 +1,11 @@
 import requests
 from PyPDF2 import PdfReader
+import os
+from flask_jwt_extended import get_jwt_identity
+from app.models.user_model import User
+from app.models.summary_model import Summary
+from app.models import db
+from app.utils import anonymize_text
 
 OLLAMA_API_URL = "http://localhost:11434/api/chat"
 MAX_TEXT_LENGTH = 4000
@@ -11,20 +17,21 @@ def extract_text_from_pdf(file):
         text += page.extract_text() or ""
     return text.strip()
 
-def upload_and_summarize_pdf(file):
+def upload_and_summarize_pdf(file, user_id=None, save_to_db=True):
     text = extract_text_from_pdf(file)
 
     if not text:
         raise ValueError("❌ Le PDF est vide ou le contenu est illisible.")
 
-    if len(text) > MAX_TEXT_LENGTH:
-        text = text[:MAX_TEXT_LENGTH]
+    text = text[:MAX_TEXT_LENGTH]
+
+    # 🔒 Anonymisation PII
+    anonymized_text = anonymize_text(text)
 
     prompt = f"""
 Tu es une intelligence artificielle experte en résumé. Lis ce document et produis un résumé clair, naturel et concis, comme si tu l'expliquais à quelqu’un à l’oral.
 
-Document :
-{text}
+{anonymized_text}
 """
 
     try:
@@ -46,13 +53,27 @@ Document :
         raise Exception(f"❌ Erreur HTTP Ollama : {e}")
 
     result = response.json()
-    summary = result.get("message", {}).get("content", "").strip()
+    summary_text = result["message"]["content"]
 
-    if not summary:
-        raise Exception("❌ Résumé vide ou invalide.")
+    if save_to_db:
+        if not user_id:
+            raise ValueError("Impossible d'enregistrer sans utilisateur connecté.")
+        user = User.query.get(user_id)
+        if not user:
+            raise ValueError("Utilisateur introuvable.")
+
+        summary = Summary(
+            filename=file.filename,
+            summary_text=summary_text,
+            original_text=text,
+            anonymized_text=anonymized_text,
+            user=user
+        )
+        db.session.add(summary)
+        db.session.commit()
 
     return {
-        "summary": summary,
-        "model": "mistral",
-        "input_length": len(text)
+        "summary": summary_text,
+        "input_length": len(anonymized_text),
+        "filename": file.filename,
     }
