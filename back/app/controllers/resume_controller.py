@@ -1,6 +1,5 @@
 import requests
 from PyPDF2 import PdfReader
-import os
 
 OLLAMA_API_URL = "http://localhost:11434/api/chat"
 MAX_TEXT_LENGTH = 4000
@@ -10,23 +9,21 @@ def extract_text_from_pdf(file):
     text = ""
     for page in reader.pages:
         text += page.extract_text() or ""
-    return text
-
+    return text.strip()
 
 def upload_and_summarize_pdf(file):
     text = extract_text_from_pdf(file)
 
-    if not text.strip():
-        raise ValueError("Le PDF semble vide ou le texte est illisible.")
+    if not text:
+        raise ValueError("❌ Le PDF est vide ou le contenu est illisible.")
 
-    # Tronquer le texte
-    text = text[:MAX_TEXT_LENGTH]
+    if len(text) > MAX_TEXT_LENGTH:
+        text = text[:MAX_TEXT_LENGTH]
 
     prompt = f"""
-Tu es une intelligence artificielle experte en résumé. Lis ce document et produis un résumé clair et fluide, comme si tu l'expliquais à quelqu'un à l'oral. Sois synthétique mais complet.
+Tu es une intelligence artificielle experte en résumé. Lis ce document et produis un résumé clair, naturel et concis, comme si tu l'expliquais à quelqu’un à l’oral.
 
-Voici le contenu à résumer :
-
+Document :
 {text}
 """
 
@@ -37,17 +34,22 @@ Voici le contenu à résumer :
                 {"role": "user", "content": prompt}
             ],
             "stream": False
-        }, timeout=30)
-    except requests.exceptions.ConnectionError:
-        raise Exception("⚠️ Ollama ne répond pas. Vérifie qu’il est bien lancé.")
-    except requests.exceptions.Timeout:
-        raise Exception("⚠️ Temps d’attente dépassé lors de la génération.")
+        }, timeout=240)
 
-    if response.status_code != 200:
-        raise Exception(f"Ollama error: {response.status_code} - {response.text}")
+        response.raise_for_status()
+
+    except requests.exceptions.ConnectionError:
+        raise Exception("❌ Ollama ne répond pas. Vérifie qu’il est lancé avec : `ollama run mistral`")
+    except requests.exceptions.Timeout:
+        raise Exception("❌ Temps d’attente dépassé (60s).")
+    except requests.exceptions.RequestException as e:
+        raise Exception(f"❌ Erreur HTTP Ollama : {e}")
 
     result = response.json()
-    summary = result["message"]["content"]
+    summary = result.get("message", {}).get("content", "").strip()
+
+    if not summary:
+        raise Exception("❌ Résumé vide ou invalide.")
 
     return {
         "summary": summary,
